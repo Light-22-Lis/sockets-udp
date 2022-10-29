@@ -7,9 +7,9 @@ System.Text.Encoding encoding = System.Text.Encoding.Unicode;
 try {
     Console.Write("Enter the remote address to connect to:\t");
     string remoteAddress = GetLine();
-    Console.Write("Enter the connection (remote) port:\t\t");
+    Console.Write("Enter the connection (remote) port:\t");
     int remotePort = int.Parse(GetLine());
-    Console.Write("Enter the listening (local) port:\t\t");
+    Console.Write("Enter the listening (local) port:\t");
     int localPort = int.Parse(GetLine());
 
     Thread receiveThread = new(new ParameterizedThreadStart(ReceiveMessage));
@@ -49,13 +49,11 @@ void ReceiveMessage(object? arg)
         while (true) {
             byte[] data = receiver.Receive(ref remoteIp);
             string message = encoding.GetString(data);
-            Console.Write("Enter your name: ");
-            string name = GetLine();
-            Console.WriteLine("{0}: {1}",name, message);
+            Console.WriteLine("Other: " + message);
         }
     }
-    catch(Exception exception){
-        Console.WriteLine(exception.Message);
+    catch(Exception ex) {
+        Console.WriteLine(ex.Message);
     }
     finally{
         receiver.Close();
