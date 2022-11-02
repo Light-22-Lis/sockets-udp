@@ -30,6 +30,7 @@ void SendMessage(int remotePort, string userName)
     IPEndPoint remoteEp = new(remoteAddress, remotePort);
     try {
         while(true) {
+            Console.Write("> ");
             string message = $"{userName}: {GetLine()}";
             byte[] data = encoding.GetBytes(message);
             sender.Send(data, data.Length, remoteEp);
@@ -51,14 +52,14 @@ void ReceiveMessage(object? arg)
     UdpClient receiver = new(localPort);
     receiver.JoinMulticastGroup(remoteAddress, 20);
     IPEndPoint? remoteIp = null;
-    IPAddress localAddress = LocalIPAddress();
+    IPAddress localAddress = LocalIPAddress() ?? throw new InvalidOperationException();
     try {
         while (true) {
             byte[] data = receiver.Receive(ref remoteIp);
-            if (remoteIp.Address == localAddress)
+            if (remoteIp.Address.Equals(localAddress))
                 continue;
             string message = encoding.GetString(data);
-            Console.WriteLine(message);
+            Console.Write($"\r{message}\n> ");
         }
     }
     catch(Exception ex) {
@@ -73,7 +74,7 @@ IPAddress? LocalIPAddress()
 {
     IPHostEntry host = Dns.GetHostEntry(Dns.GetHostName());
     foreach (IPAddress ip in host.AddressList)
-        if (ip.AddressFamily == AddressFamily.InterNetwork)
+        if (ip.AddressFamily == AddressFamily.InterNetwork && ip.GetAddressBytes()[0] != 127)
             return ip;
     return null;
 }
